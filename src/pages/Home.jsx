@@ -1,16 +1,15 @@
 import React from "react";
 import Categories from "../components/Categories";
-import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
 import Products from "../components/Products";
+import Layout from "../layout/Layout"
 
 const Home = () => {
   return (
     <div>
-      <Navbar />
-      <Categories />
-      <Products/>
-      <Footer/>
+      <Layout>
+        <Categories />
+        <Products/>
+      </Layout>
     </div>
   );
 };

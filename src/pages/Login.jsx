@@ -1,5 +1,9 @@
 import styled from "styled-components";
 import {mobile} from "../responsive";
+import {useState, useContext} from 'react';
+import axios from 'axios';
+import { loginSuccess } from "../redux/userSlice";
+import { useDispatch } from "react-redux";
 
 const Container = styled.div`
   width: 100vw;
@@ -58,13 +62,40 @@ const Link = styled.a`
 `;
 
 const Login = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    axios.post('http://localhost:8000/api/login', {
+      email,
+      password
+    }).then(res => {
+      dispatch(loginSuccess(res.data))
+    })
+  }
+
+  // const handleLoginAsyncAwait = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const userData = await axios.post('http://localhost:8000/api/login', {
+  //       email,
+  //       password
+  //     })
+  //     dispatch({type : "LOGIN_SUCCESS", payload : res.data})
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
+
   return (
     <Container>
       <Wrapper>
         <Title>ВОЙТИ</Title>
-        <Form>
-          <Input placeholder="username" />
-          <Input placeholder="password" />
+        <Form onSubmit={handleLogin}>
+          <Input placeholder="email" onChange={e => setEmail(e.target.value)} value={email}/>
+          <Input placeholder="password" onChange={e => setPassword(e.target.value)} value={password} />
           <Button>ЛОГИН</Button>
           <Link>ЗАБЫЛИ ПАРОЛЬ?</Link>
           <Link>СОЗДАТЬ НОВЫЙ АККАУНТ</Link>

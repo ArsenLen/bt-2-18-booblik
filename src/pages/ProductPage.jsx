@@ -3,6 +3,12 @@ import styled from "styled-components";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { mobile } from "../responsive";
+import {useEffect, useState} from "react"
+import axios from 'axios'
+import {useParams} from 'react-router-dom';
+import { addToCart } from "../redux/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+
 
 const Container = styled.div``;
 
@@ -113,32 +119,75 @@ const Button = styled.button`
   }
 `;
 
-const Product = () => {
+const fetchProduct = (id) => {
+  return axios.get(`http://localhost:8000/api/products/${id}`)
+}
+
+const ProductPage = () => {
+  const [product, setProduct] = useState({}) // на странице
+  const {id} = useParams()
+  const dispatch = useDispatch()
+  const [productCount, setProductCount] = useState(1)
+  const [isProductInCart, setIsProductInCart] = useState(false)
+
+  useEffect(() => {
+    fetchProduct(id).then(res => setProduct(res.data))
+  }, [])
+
+  const handleCart = () => {
+    product.count = productCount
+    dispatch(addToCart({product}))
+  }
+
+  const products = useSelector(state => state.cart.products) // из корзины
+
+  const checkProductInCart = () => {
+    const prod = products.find(p => p._id === product._id) // виден только внутри функции
+    if(prod) {
+      setIsProductInCart(true)
+    }
+  }
+
+  useEffect(() => {
+    checkProductInCart()
+  }, [products, product])
+
+  const handleProductCount = (type) => {
+    if(type === 'add') {
+      setProductCount(productCount + 1)
+    } else {
+      productCount > 1 && setProductCount(productCount - 1)
+      if(productCount > 1) {
+        setProductCount(productCount - 1)
+      }
+    }
+  }
+
   return (
     <Container>
       <Navbar />
       <Wrapper>
         <ImgContainer>
-          <Image src="https://www.freepnglogos.com/uploads/burger-png/burgers-burger-king-29.png" />
+          <Image src={`http://localhost:8000/` + product.img} />
         </ImgContainer>
         <InfoContainer>
-          <Title>Гамбургер</Title>
+          <Title>{product.name}</Title>
           <Desc>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-            venenatis, dolor in finibus malesuada, lectus ipsum porta nunc, at
-            iaculis arcu nisi sed mauris. Nulla fermentum vestibulum ex, eget
-            tristique tortor pretium ut. Curabitur elit justo, consequat id
-            condimentum ac, volutpat ornare.
+            {product.descr}
           </Desc>
-          <Price>250 сом</Price>
+          <Price>{product.price}</Price>
+          {isProductInCart ? (
+            <h3>Такой продукт уже есть в корзине</h3>
+          ) : (
           <AddContainer>
             <AmountContainer>
-              <Remove />
-              <Amount>1</Amount>
-              <Add />
+              <Remove onClick={() => handleProductCount('remove')}  />
+              <Amount>{productCount}</Amount>
+              <Add onClick={() => handleProductCount('add')} />
             </AmountContainer>
-            <Button>ДОБАВИТЬ В КОРЗИНУ</Button>
+            <Button onClick={handleCart}>ДОБАВИТЬ В КОРЗИНУ</Button>
           </AddContainer>
+          )}
         </InfoContainer>
       </Wrapper>
       <Footer />
@@ -146,4 +195,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default ProductPage;

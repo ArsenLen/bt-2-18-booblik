@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { mobile } from "../responsive";
+import axios from 'axios';
+import {useState} from 'react'
 
 const Container = styled.div`
   width: 100vw;
@@ -55,18 +57,31 @@ const Button = styled.button`
 `;
 
 const Register = () => {
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleRegister = (e) => {
+    e.preventDefault()
+    axios.post('http://localhost:8000/api/register', {
+      email,
+      password,
+      username
+    }).then(res => console.log(res.data))
+  }
+
   return (
     <Container>
       <Wrapper>
         <Title>СОЗДАТЬ АККАУНТ</Title>
-        <Form>
-          <Input placeholder="name" />
-          <Input placeholder="last name" />
-          <Input placeholder="username" />
-          <Input placeholder="email" />
-          <Input placeholder="password" />
+        <Form onSubmit={handleRegister}>
+          {/* <Input placeholder="name" /> */}
+          {/* <Input placeholder="last name" /> */}
+          <Input placeholder="username" onChange={ e => setUsername(e.target.value) } value={username} />
+          <Input placeholder="email" onChange={ e => setEmail(e.target.value) } value={email} />
+          <Input placeholder="password" onChange={ e => setPassword(e.target.value) } value={password} />
           <Input placeholder="confirm password" />
-          <Button>СОЗДАТЬ</Button>
+          <Button>СОЗДАТЬ</Button>                                         
         </Form>
       </Wrapper>
     </Container>
